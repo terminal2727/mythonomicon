@@ -14,6 +14,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/src/mythos_engine/mythos_engine.cpp
     ${CMAKE_SOURCE_DIR}/src/mythos_engine/rendering/rendering_pipeline.cpp
     ${CMAKE_SOURCE_DIR}/src/mythos_engine/rendering/display_management/display_manager.cpp
+    ${CMAKE_SOURCE_DIR}/src/utils/type_registry/type_registry.cpp
 )
 
 file(GLOB_RECURSE HEADER_DIRS "src/**")
@@ -21,12 +22,13 @@ file(GLOB_RECURSE HEADER_DIRS "src/**")
 # Specify the source files
 add_executable(Mythonomicon ${SOURCES} ${HEADERS})
 
-# Includes (will list files manually, but later. am lazy and prototyping rn ;-;)
+# Includes
 target_include_directories(Mythonomicon 
     PRIVATE
         ${CMAKE_SOURCE_DIR}/src/mythos_engine
         ${CMAKE_SOURCE_DIR}/src/mythos_engine/rendering
         ${CMAKE_SOURCE_DIR}/src/mythos_engine/rendering/display_management
+        ${CMAKE_SOURCE_DIR}/src/utils/type_registry
 )
 
 # Find OpenGL

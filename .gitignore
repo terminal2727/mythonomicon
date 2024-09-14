@@ -1,6 +1,7 @@
 # Outlines
 how_to_build_project.txt
 outline.txt
+src/mythos_engine/rendering/rendering_outline.txt
 
 # build artifacts
 build/

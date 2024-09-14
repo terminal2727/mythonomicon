@@ -4,17 +4,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-struct DisplayManager {
-    static GLFWwindow* main_window;
-    static GLFWwindow* console_window;
-    static int width, height;
-    static int console_width, console_height;
-    static const char* title;
-};
+void* rendering_display_manager_create_window(int width, int height, const char* title);
 
-bool rendering_display_manager_init(int width, int height, const char* title);
+bool rendering_display_manager_successfully_created_window(void* window);
 bool rendering_display_manager_should_close();
-void rendering_display_manager_update_frame();
-void rendering_display_manager_shutdown();
+
+void rendering_display_manager_make_context_current(void* window);
+void rendering_display_manager_set_frame_buffer(void* window);
+void rendering_display_manager_render_frame();
+void rendering_display_manager_delete_window(void* window);
 
 #endif // DISPLAY_MANAGER_HPP

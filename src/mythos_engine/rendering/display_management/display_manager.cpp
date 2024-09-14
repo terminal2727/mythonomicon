@@ -1,79 +1,60 @@
 #include <display_manager.hpp>
+#include <type_registry.hpp>
 #include <iostream>
 
-GLFWwindow* DisplayManager::main_window = nullptr;
-GLFWwindow* DisplayManager::console_window = nullptr;
-int DisplayManager::width = 0;
-int DisplayManager::height = 0;
-int DisplayManager::console_width = 500;
-int DisplayManager::console_height = 300;
-const char* DisplayManager::title = "Mythonomicon";
+struct WindowManager {
+    GLFWwindow* window;
+    int width, height;
+    int type_tag;
+    const char* title;
 
-bool rendering_display_manager_init(int width, int height, const char* title) {
-    // Initialize GLFW
-    if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
-        return false;
+    WindowManager(int width, int height, const char* title) : width(width), height(height), title(title) { 
+        
+        type_tag = type_registry_get_type_tag<WindowManager>(); 
     }
+};
 
-    // Set DisplayManager properties
-    DisplayManager::width = width;
-    DisplayManager::height = height;
-    DisplayManager::title = title;
-    DisplayManager::console_width = 500;
-    DisplayManager::console_height = 300;
+WindowManager* frame_buffer = nullptr;
 
-    // Create a windowed mode window and OpenGL context
-    DisplayManager::main_window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-    
-    if (!DisplayManager::main_window) {
-        std::cerr << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return false;
-    }
-
-    // Create a console window
-    DisplayManager::console_window = glfwCreateWindow(DisplayManager::console_width, DisplayManager::console_height, "Console", nullptr, nullptr);
-    
-    if (!DisplayManager::console_window) {
-        std::cerr << "Failed to create console window" << std::endl;
-        glfwTerminate();
-        return false;
-    }
-
-    // Set the window title
-    glfwSetWindowTitle(DisplayManager::main_window, title);
-    glfwSetWindowTitle(DisplayManager::console_window, "Mythonomicon Debugger");
-
-    // Make the window's context current
-    glfwMakeContextCurrent(DisplayManager::main_window);
-
-    // Initialize GLEW
-    GLenum err = glewInit();
-    if (err != GLEW_OK) {
-        std::cerr << "Failed to initialize GLEW: " << glewGetErrorString(err) << std::endl;
-        return false;
-    }
-
-    return true;
+void* rendering_display_manager_create_window(int width, int height, const char* title) {
+    WindowManager* window_manager = new WindowManager(width, height, title);
+    window_manager->window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    return window_manager;
 }
 
-bool rendering_display_manager_should_close() {
-    return glfwWindowShouldClose(DisplayManager::main_window);
+bool rendering_display_manager_successfully_created_window(void* window) {
+    WindowManager* window_manager = nullptr;
+    if (!is_type_of<WindowManager>(window, &window_manager)) { return false; }
+    return window_manager->window != nullptr;
 }
 
-void rendering_display_manager_update_frame() {
-    // Swap front and back buffers
-    glfwSwapBuffers(DisplayManager::main_window);
-    
-    // Poll for and process events
+void rendering_display_manager_make_context_current(void* window) {
+    WindowManager* window_manager = nullptr;
+    if (!is_type_of<WindowManager>(window, &window_manager)) { return; }
+    glfwMakeContextCurrent(window_manager->window);
+}
+
+void rendering_display_manager_set_frame_buffer(void* window) {
+    WindowManager* window_manager = nullptr;
+    if (!is_type_of<WindowManager>(window, &window_manager)) { return; }
+    frame_buffer = window_manager;
+}
+
+void rendering_display_manager_render_frame() {
+    if (frame_buffer == nullptr) { return; }
+    glfwSwapBuffers(frame_buffer->window);
     glfwPollEvents();
 }
 
-void rendering_display_manager_shutdown() {
-    // Clean up and exit
-    glfwDestroyWindow(DisplayManager::console_window);
-    glfwDestroyWindow(DisplayManager::main_window);
+bool rendering_display_manager_should_close() {
+    if (frame_buffer == nullptr) { return true; }
+    return glfwWindowShouldClose(frame_buffer->window);
+}
 
-    glfwTerminate();
+void rendering_display_manager_delete_window(void* window) {
+    WindowManager* window_manager = nullptr;
+    if (!is_type_of<WindowManager>(window, &window_manager)) { return; }
+    
+    glfwDestroyWindow(window_manager->window);
+    delete window_manager;
 }
