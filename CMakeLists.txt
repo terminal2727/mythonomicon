@@ -8,8 +8,26 @@ project(Mythonomicon VERSION 0.0.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Set sources (sure hope HEADER_DIRS is right XP)
+set(SOURCES
+    ${CMAKE_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/mythos_engine/mythos_engine.cpp
+    ${CMAKE_SOURCE_DIR}/src/mythos_engine/rendering/rendering_pipeline.cpp
+    ${CMAKE_SOURCE_DIR}/src/mythos_engine/rendering/display_management/display_manager.cpp
+)
+
+file(GLOB_RECURSE HEADER_DIRS "src/**")
+
 # Specify the source files
-add_executable(MyOpenGLApp src/main.cpp)
+add_executable(Mythonomicon ${SOURCES} ${HEADERS})
+
+# Includes (will list files manually, but later. am lazy and prototyping rn ;-;)
+target_include_directories(Mythonomicon 
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/mythos_engine
+        ${CMAKE_SOURCE_DIR}/src/mythos_engine/rendering
+        ${CMAKE_SOURCE_DIR}/src/mythos_engine/rendering/display_management
+)
 
 # Find OpenGL
 find_package(OpenGL REQUIRED)
@@ -22,4 +40,4 @@ find_package(glfw3 REQUIRED)
 include_directories(${GLEW_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS})
 
 # Link libraries
-target_link_libraries(MyOpenGLApp OpenGL::GL ${GLEW_LIBRARIES} glfw)
+target_link_libraries(Mythonomicon OpenGL::GL ${GLEW_LIBRARIES} glfw)
